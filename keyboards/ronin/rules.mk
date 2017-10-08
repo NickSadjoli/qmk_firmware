@@ -72,3 +72,17 @@ FAUXCLICKY_ENABLE ?= no      # Use buzzer to emulate clicky switches
 CUSTOM_MATRIX = yes
 
 BLUETOOTH=AdafruitBLE
+
+avrdude: build
+	ls /dev/tty* > /tmp/1; \
+	echo "Reset your controller now"; \
+	while [ -z $$USB ]; do \
+	  sleep 1; \
+	  ls /dev/tty* > /tmp/2; \
+	  USB=`diff /tmp/1 /tmp/2 | grep -o '/dev/tty.*'`; \
+	done; \
+	echo Found USB: $$USB; \
+	sleep 1; \
+	avrdude -p $(MCU) -c avr109 -P $$USB -U flash:w:$(BUILD_DIR)/$(TARGET).hex
+
+.PHONY: avrdude

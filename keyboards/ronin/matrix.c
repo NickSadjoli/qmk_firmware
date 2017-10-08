@@ -59,7 +59,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 static matrix_row_t matrix_debouncing[MATRIX_ROWS];
 
 static const uint8_t row_pins[MATRIX_ROWS] = MATRIX_ROW_PINS;
-static const uint8_t col_pins[5] = MATRIX_COL_PINS;
+static const uint8_t col_pins[4] = MATRIX_COL_PINS;
+static const uint8_t g_pins[2] = MUX_ENABLES;
 
 /* matrix state(1:on, 0:off) */
 static matrix_row_t matrix[MATRIX_ROWS];
@@ -125,6 +126,11 @@ void matrix_init(void)
         matrix[i] = 0;
         matrix_debouncing[i] = 0;
     }
+
+    //set global enable on MUX on. In this case set C6 to OUTput a LOW signal (look up spec sheet)
+    uint8_t g_enable_1 = g_pins[1];
+    _SFR_IO8((g_enable_1 >> 4) + 1) |= _BV(g_enable_1 & 0xF); // mode C6 OUT 
+    _SFR_IO8((g_enable_1 >> 4) + 2) &=  ~_BV(g_enable_1 & 0xF); // set C6's output to LOW
 
     matrix_init_quantum();
 
@@ -218,7 +224,7 @@ static bool read_rows_on_col(matrix_row_t current_matrix[], uint8_t current_col)
 
     // Select col and wait for col selection to stabilize
     select_col(current_col);
-    wait_us(30);
+    wait_us(5);
 
     // For each row...
     for(uint8_t row_index = 0; row_index < MATRIX_ROWS; row_index++)
@@ -253,7 +259,13 @@ static bool read_rows_on_col(matrix_row_t current_matrix[], uint8_t current_col)
 }
 
 static void select_col(uint8_t col)
-{
+{   
+
+    //global enable Pins for allowing/disabling inputs (look up 74HC154 truth table)
+    uint8_t g_enable_2 = g_pins[0];
+    _SFR_IO8((g_enable_2 >> 4) + 1) |=  _BV(g_enable_2 & 0xF); // set pin to be OUT (to send signal to MUX)
+    _SFR_IO8((g_enable_2 >> 4) + 2) &= ~_BV(g_enable_2 & 0xF); // LOW
+
     for(uint8_t x = 0; x < 4; x++) {
         uint8_t pin = col_pins[x];
         _SFR_IO8((pin >> 4) + 1) |= _BV(pin & 0xF); // OUT
@@ -266,12 +278,16 @@ static void select_col(uint8_t col)
 }
 
 static void unselect_cols(void)
-{
-    // FIXME This really needs to use the global enable on the decoder, because currently this sets the value to col1
+{   /*
     for(uint8_t x = 0; x < 4; x++) {
         uint8_t pin = col_pins[x];
         _SFR_IO8((pin >> 4) + 1) |= _BV(pin & 0xF); // OUT
         _SFR_IO8((pin >> 4) + 2) &=  ~_BV(pin & 0xF); // LOW
     }
+    */
+    //global enable Pins for allowing/disabling inputs (look up 74HC154 truth table)
+    uint8_t g_enable_2 = g_pins[0];
+    _SFR_IO8((g_enable_2 >> 4) + 1) |=  _BV(g_enable_2 & 0xF); // set pin to be OUT (to send signal to MUX)
+    _SFR_IO8((g_enable_2 >> 4) + 2) |=  _BV(g_enable_2 & 0xF); // HIGH
 }
 

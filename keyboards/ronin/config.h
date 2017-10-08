@@ -23,8 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //#include <avr/pgmspace.h>
 
 /* USB Device descriptor parameter */
-#define VENDOR_ID       0xBEEF
-#define PRODUCT_ID      0x6061
+#define VENDOR_ID       0xFEED
+#define PRODUCT_ID      0x6060
 #define DEVICE_VER      0x0001
 #define MANUFACTURER    Nicholas_Sadjoli
 #define PRODUCT         Ronin
@@ -45,11 +45,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
 */
 #define MATRIX_ROW_PINS { C7, D6, B7, B6, B5 }
-#define MATRIX_COL_PINS { F7, F6, F5, F4, F0 }
+#define MATRIX_COL_PINS { F7, F6, F5, F4}
+#define MUX_ENABLES { F0, C6 }
 #define UNUSED_PINS
 
 /* COL2ROW, ROW2COL, or CUSTOM_MATRIX */
-#define DIODE_DIRECTION COL2ROW
+#define DIODE_DIRECTION CUSTOM_MATRIX
 
 #define CATERINA_BOOTLOADER
  
