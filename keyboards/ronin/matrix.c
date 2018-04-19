@@ -1,4 +1,3 @@
-
 /*
 Copyright 2012 Jun Wako <wakojun@gmail.com>
 Copyright 2017 Cole Markham <cole@ccmcomputing.net>
